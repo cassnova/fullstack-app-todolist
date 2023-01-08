@@ -38,7 +38,7 @@ app.get("/users/dashboard", (req, res) => {
 
 //             //
 
-// POST METHOD //
+//        POST METHOD  TO REGISTER          //
 app.post("/users/register", async (req, res) => {
   let { name, email, password, password2 } = req.body;
 
