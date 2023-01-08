@@ -31,14 +31,23 @@
       <div>
         <input
           type="password"
-          id="password"
-          name="password"
+          id="password2"
+          name="password2"
           placeholder="Repita la contraseña"
         />
       </div>
 
       <div>
         <input type="submit" value="Registrarse" />
+      </div>
+
+      <div>
+        <ul>
+          <% if(typeof errors !== 'undefined'){ %> <% errors.forEach(error =>
+          {%>
+          <li><%= error.msg %></li>
+          <% }) %> <% } %>
+        </ul>
       </div>
 
       <p>Ya tienes una cuenta? <a href="/users/login">Haz click aqui</a></p>
