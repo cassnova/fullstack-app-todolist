@@ -34,13 +34,23 @@ app.get("/users/register", checkAuthenticated, (req, res) => {
   res.render("register");
 });
 
+let newItems = [];
 app.get("/users/login", checkAuthenticated, (req, res) => {
   res.render("login");
 });
 
 app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
-  res.render("dashboard", { user: req.user.name });
+  res.render("dashboard", { user: req.user.name, newListItems: newItems });
 });
+
+// POST IN  DASHBOARD TODO LIST  //
+app.post("/users/dashboard", (req, res) => {
+  let newItem = req.body.newItem;
+  newItems.push(newItem);
+  res.redirect("/users/dashboard");
+});
+
+//                    //
 
 app.get("/users/logout", (req, res) => {
   req.logout((err) => {
