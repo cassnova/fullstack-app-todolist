@@ -4,6 +4,10 @@ const { pool } = require("./dbConfig");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
 const flash = require("express-flash");
+const passport = require("passport");
+const inizializePassport = require("./passportConfig");
+
+inizializePassport(passport);
 
 // MIDDLEWARE //
 app.set("view engine", "ejs");
@@ -16,6 +20,8 @@ app.use(
     saveUninitialized: false,
   })
 );
+app.use(passport.session());
+app.use(passport.initialize());
 
 //           //
 
@@ -33,7 +39,7 @@ app.get("/users/login", (req, res) => {
 });
 
 app.get("/users/dashboard", (req, res) => {
-  res.render("Bienvenido a tu Dashboard", { user: "Daniel Rojas" });
+  res.render("dashboard", { user: req.user.name });
 });
 
 //             //
@@ -104,6 +110,18 @@ app.post("/users/register", async (req, res) => {
 });
 
 //             //
+
+//  POST METHOD TO LOGIN   //
+app.post(
+  "/users/login",
+  passport.authenticate("local", {
+    successRedirect: "/users/dashboard",
+    failureRedirect: "/users/login",
+    failureFlash: true,
+  })
+);
+
+//                             //
 
 const PORT = process.env.PORT || 5000;
 
