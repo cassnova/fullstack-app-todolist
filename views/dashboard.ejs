@@ -22,9 +22,17 @@
 
     <ul id="task-list">
       <% for(let i = 0; i < newListItems.length; i++){ %>
-
-      <li><%= newListItems[i].description %></li>
-
+      <li>
+        <%= newListItems[i].description %>
+        <form action="/users/dashboard/delete" method="post">
+          <input
+            type="hidden"
+            name="description"
+            value="<%= newListItems[i].description %>"
+          />
+          <button type="submit">Eliminar</button>
+        </form>
+      </li>
       <% } %>
     </ul>
   </body>

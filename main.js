@@ -129,15 +129,13 @@ app.put("/users/dashboard", async (req, res) => {
 //
 
 // DELETE A TODO     /
-app.delete("/users/dashboard", async (req, res) => {
+app.post("/users/dashboard/delete", async (req, res) => {
   try {
-    const { id } = req.params;
-    const deleteTodo = await pool.query(`DELETE FROM todo WHERE todo_id = $1`, [
-      id,
-    ]);
-    res.json("Todo was delete");
+    const { description } = req.body;
+    await pool.query(`DELETE FROM todo WHERE description = $1`, [description]);
+    res.redirect("/users/dashboard");
   } catch (err) {
-    console.error(err.message);
+    console.error(err);
   }
 });
 
