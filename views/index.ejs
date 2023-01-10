@@ -5,9 +5,64 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inicio</title>
+    <style>
+      /* Aqui el codigo css */
+      @import url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        font-family: "Lato", sans-serif;
+      }
+      .inicio-container {
+        width: 100%;
+        height: 100vh;
+        background-color: #fcffe7;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .inicio-container div {
+        border-radius: 50px;
+        width: 380px;
+        height: 400px;
+        background-color: #eb455f;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .inicio-container div a {
+        color: whitesmoke;
+        background-color: #2b3467;
+        width: 100px;
+        height: 50px;
+        cursor: pointer;
+        text-decoration: none;
+        margin: 20px 0px;
+        text-align: center;
+        padding: 5px;
+      }
+      .inicio-container div h2 {
+        font-size: 18px;
+      }
+      .inicio-container header {
+        margin-bottom: 50px;
+      }
+    </style>
   </head>
-  <body>
-    <h1>Inicio</h1>
-    <a href="/users/login">Login</a>
+  <body class="inicio-container">
+    <header>
+      <h2>Bienvenido...</h2>
+      <h1>Fullstack APP</h1>
+      <p>¡Registra tus proximos movimientos!</p>
+    </header>
+    <div>
+      <h2>Si ya tienes una cuenta, dale a iniciar sesion</h2>
+      <a href="/users/login">Iniciar Sesion</a>
+      <h2>O sino, registrate!</h2>
+      <a href="/users/register">Registrate</a>
+    </div>
   </body>
 </html>

@@ -101,9 +101,6 @@ app.get("/users/dashboard", async (req, res) => {
       `SELECT description FROM todo WHERE user_id = $1`,
       [idUser]
     );
-
-    // res.render("dashboard", { newListItems: allTodos });
-    // res.json(allTodos.rows);
   } catch (err) {
     console.error(err.message);
   }
@@ -112,15 +109,14 @@ app.get("/users/dashboard", async (req, res) => {
 //
 
 // UPDATE A TODO     //
-app.put("/users/dashboard", async (req, res) => {
+app.post("/users/dashboard/edit", async (req, res) => {
   try {
-    const { id } = req.params;
-    const { description } = req.body;
-    const updateTodo = await pool.query(
-      `UPDATE todo SET description = $1 WHERE todo_id = $2`,
-      [description, id]
-    );
-    res.json("Todo was updated");
+    const { todo_id, description } = req.body;
+    await pool.query(`UPDATE todo SET description = $1 WHERE todo_id = $2`, [
+      description,
+      todo_id,
+    ]);
+    res.redirect("/users/dashboard");
   } catch (err) {
     console.error(err.message);
   }
