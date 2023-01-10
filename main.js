@@ -35,22 +35,115 @@ app.get("/users/register", checkAuthenticated, (req, res) => {
 });
 
 let newItems = [];
+
 app.get("/users/login", checkAuthenticated, (req, res) => {
   res.render("login");
 });
 
 app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
-  res.render("dashboard", { user: req.user.name, newListItems: newItems });
+  let idUser = req.user.id;
+  pool
+    .query(`SELECT description FROM todo WHERE user_id = $1`, [idUser])
+    .then((result) => {
+      // Procesar el resultado de la consulta y mostrar las "description" en pantalla
+      res.render("dashboard", {
+        user: req.user.name,
+        newListItems: result.rows,
+      });
+    })
+    .catch((error) => {
+      // Manejar cualquier error que ocurra durante la ejecución de la consulta
+      console.error(error);
+      res.send("Error al obtener las description");
+    });
 });
+
+// app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
+//   let idUser = req.user.id;
+//   let allTodos = pool.query(`SELECT description FROM todo WHERE user_id = $1`, [
+//     idUser,
+//   ]);
+//   res.render("dashboard", { user: req.user.name, newListItems: allTodos });
+// });
 
 // POST IN  DASHBOARD TODO LIST  //
-app.post("/users/dashboard", (req, res) => {
-  let newItem = req.body.newItem;
-  newItems.push(newItem);
-  res.redirect("/users/dashboard");
-});
+// app.post("/users/dashboard", (req, res) => {
+//   let newItem = req.body.newItem;
+//   newItems.push(newItem);
+//   res.redirect("/users/dashboard");
+// });
 
 //                    //
+
+// SECOND POST IN DASHBOARD TODO LIST //
+app.post("/users/dashboard", async (req, res) => {
+  try {
+    let description = req.body.newItem;
+    let idUser = req.user.id;
+    const newTodo = await pool.query(
+      `INSERT INTO todo (description, user_id) VALUES ($1, $2) RETURNING *`,
+      [description, idUser]
+    );
+    newItems.push(description);
+    res.redirect("/users/dashboard");
+    // res.render("dashboard", newTodo.rows, { user: req.user.name });
+    // res.redirect("/users/dashboard");
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+// GET ALL DATA   //
+app.get("/users/dashboard", async (req, res) => {
+  try {
+    let idUser = req.user.id;
+    const allTodos = await pool.query(
+      `SELECT description FROM todo WHERE user_id = $1`,
+      [idUser]
+    );
+
+    // res.render("dashboard", { newListItems: allTodos });
+    // res.json(allTodos.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+//
+
+// UPDATE A TODO     //
+app.put("/users/dashboard", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { description } = req.body;
+    const updateTodo = await pool.query(
+      `UPDATE todo SET description = $1 WHERE todo_id = $2`,
+      [description, id]
+    );
+    res.json("Todo was updated");
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+//
+
+// DELETE A TODO     /
+app.delete("/users/dashboard", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleteTodo = await pool.query(`DELETE FROM todo WHERE todo_id = $1`, [
+      id,
+    ]);
+    res.json("Todo was delete");
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+//
+
+//
 
 app.get("/users/logout", (req, res) => {
   req.logout((err) => {

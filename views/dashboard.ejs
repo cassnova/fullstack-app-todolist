@@ -15,20 +15,15 @@
         type="text"
         id="newItem"
         name="newItem"
-        autocomplete="off"
         placeholder="Ingresa una tarea"
       />
       <button type="submit">Agregar tarea</button>
     </form>
 
     <ul id="task-list">
-      <li>Buy Food</li>
-      <li>Buy Water</li>
-      <li>Buy Car</li>
-
       <% for(let i = 0; i < newListItems.length; i++){ %>
 
-      <li><%= newListItems[i] %></li>
+      <li><%= newListItems[i].description %></li>
 
       <% } %>
     </ul>
