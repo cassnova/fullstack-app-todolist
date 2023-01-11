@@ -6,6 +6,7 @@ const session = require("express-session");
 const flash = require("express-flash");
 const passport = require("passport");
 const inizializePassport = require("./passportConfig");
+const { Router } = require("express");
 
 inizializePassport(passport);
 
@@ -28,6 +29,11 @@ app.use(passport.initialize());
 // ROUTES //
 app.get("/", (req, res) => {
   res.render("index");
+});
+
+app.get("/users/dashboard/edit", (req, res) => {
+  // let todo_id = req.body.id;
+  res.render("edit");
 });
 
 app.get("/users/register", checkAuthenticated, (req, res) => {
@@ -57,23 +63,6 @@ app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
       res.send("Error al obtener las description");
     });
 });
-
-// app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
-//   let idUser = req.user.id;
-//   let allTodos = pool.query(`SELECT description FROM todo WHERE user_id = $1`, [
-//     idUser,
-//   ]);
-//   res.render("dashboard", { user: req.user.name, newListItems: allTodos });
-// });
-
-// POST IN  DASHBOARD TODO LIST  //
-// app.post("/users/dashboard", (req, res) => {
-//   let newItem = req.body.newItem;
-//   newItems.push(newItem);
-//   res.redirect("/users/dashboard");
-// });
-
-//                    //
 
 // SECOND POST IN DASHBOARD TODO LIST //
 app.post("/users/dashboard", async (req, res) => {
@@ -109,18 +98,61 @@ app.get("/users/dashboard", async (req, res) => {
 //
 
 // UPDATE A TODO     //
-app.post("/users/dashboard/edit", async (req, res) => {
+app.get("/users/dashboard/edit", async (req, res) => {
   try {
-    const { todo_id, description } = req.body;
-    await pool.query(`UPDATE todo SET description = $1 WHERE todo_id = $2`, [
-      description,
-      todo_id,
+    const id = req.params.id;
+    const todo = await pool.query(`SELECT * FROM todo WHERE todo_id = $1`, [
+      id,
     ]);
-    res.redirect("/users/dashboard");
-  } catch (err) {
-    console.error(err.message);
+    res.render("edit", { todo: todo.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
+
+app.post("/users/dashboard/edit", async (req, res) => {
+  let id = req.body.id;
+  let newMessage = req.body.mensaje;
+  console.log(id);
+  try {
+    const result = await pool.query(
+      "UPDATE todo SET description = $1 WHERE todo_id = $2 RETURNING *",
+      [newMessage, id]
+    );
+    res.status(200);
+    res.redirect("/users/dashboard");
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: "Error al actualizar el mensaje",
+    });
+  }
+});
+
+// app.post("/users/dashboard/edit/:id", async (req, res) => {
+//   try {
+//     const { todo_id, description } = req.body;
+//     await pool.query(`UPDATE todo SET description = $1 WHERE todo_id = $2`, [
+//       description,
+//       todo_id,
+//     ]);
+//     res.redirect("/users/dashboard");
+//   } catch (err) {
+//     console.error(err.message);
+//   }
+// });
+
+// app.get("/users/dashboard/edit/:id", async (req, res) => {
+//   try {
+//     const id = req.params;
+//     const todo = await pool.query(`SELECT * FROM todo WHERE todo_id = $1`, [
+//       id,
+//     ]);
+//     res.render("edit", { todo: todo.rows[0] });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
 //
 
@@ -137,7 +169,7 @@ app.post("/users/dashboard/delete", async (req, res) => {
 
 //
 
-//
+// LOGOUT  //
 
 app.get("/users/logout", (req, res) => {
   req.logout((err) => {
@@ -242,7 +274,70 @@ function checkNotAuthenticated(req, res, next) {
   res.redirect("/users/login");
 }
 
-//                             //
+//
+
+//     GET AND POST METHOD TO CHANGE PASS                  //
+app.get("/change-password", (req, res) => {
+  res.render("change-password");
+});
+
+app.post("/change-password", async (req, res) => {
+  let email = req.body;
+  let password = req.body;
+  const passEncrypt = await bcrypt.hash(password, 10);
+
+  pool.query(
+    "UPDATE users SET password = $1 WHERE email = $2",
+    [passEncrypt, email],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+      }
+      req.flash("success_msg", "Contraseña Actualizada, ahora inicia sesion");
+      res.redirect("/users/login");
+    }
+  );
+});
+
+// app.post("/users/change-password", (req, res) => {
+//   // retrieve the current password, new password, and confirm new password from the request body
+//   const currentPassword = req.body["current-password"];
+//   const newPassword = req.body["new-password"];
+//   const confirmNewPassword = req.body["confirm-new-password"];
+
+//   // get the current logged in user's email address from the session
+//   const email = req.session.email;
+
+//   // check if the new password and the confirmed new password match
+//   if (newPassword !== confirmNewPassword) {
+//     req.flash("error", "Las contraseñas no coinciden");
+//     res.redirect("/change-password");
+//     return;
+//   }
+
+//   // check if the current password is correct
+//   // you can use the passport.authenticate() method to check this
+// passport.authenticate("local", {
+//   successRedirect: "/",
+//   failureRedirect: "/change-password",
+//   failureFlash: true,
+// });
+
+//   // Update the password
+//   pool.query(
+//     "UPDATE users SET password = $1 WHERE email = $2",
+//     [bcrypt.hashSync(newPassword, 10), email],
+//     (error) => {
+//       if (error) {
+//         throw error;
+//       }
+//       req.flash("success_msg", "La contraseña ha sido actualizada");
+//       res.redirect("/");
+//     }
+//   );
+// });
+
+//
 
 const PORT = process.env.PORT || 5000;
 

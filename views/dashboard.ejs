@@ -83,6 +83,7 @@
         font-weight: bold;
         background-color: #2b3467;
         color: aliceblue;
+        cursor: pointer;
       }
     </style>
   </head>
@@ -114,6 +115,15 @@
           <textarea name="description">description</textarea>
           <button type="submit">Editar</button>
         </form> -->
+          <form action="/users/dashboard/edit" method="post">
+            <a
+              href="/users/dashboard/edit"
+              id="todo_id"
+              value="<%= newListItems[i].todo_id %>"
+              class="edit-btn"
+              >Editar</a
+            >
+          </form>
 
           <form action="/users/dashboard/delete" method="post">
             <input
